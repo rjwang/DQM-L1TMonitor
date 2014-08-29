@@ -13,3 +13,6 @@ python/__init__.py
 
 Makefile
 # no private directory
+
+# no root files
+*.root

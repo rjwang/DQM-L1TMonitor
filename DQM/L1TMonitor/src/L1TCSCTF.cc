@@ -4,6 +4,7 @@
  * \author J. Berryhill
  *
  */
+//
 
 #include "DQM/L1TMonitor/interface/L1TCSCTF.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -388,7 +389,7 @@ void L1TCSCTF::beginJob(void)
     
     sprintf(hname ,"DTstubsTimeTrackMenTimeArrival_%d",i+1);
     sprintf(htitle,"T_{track} - T_{DT stub} sector %d",i+1);
- 
+    
     DTstubsTimeTrackMenTimeArrival[i] = dbe->book2D(hname,htitle, 7,-3,3, 2,1,3);
     DTstubsTimeTrackMenTimeArrival[i]->getTH2F()->SetMinimum(0);
     
@@ -408,6 +409,43 @@ void L1TCSCTF::beginJob(void)
     DTstubsTimeTrackMenTimeArrival[i]->setBinLabel(2,"sub2",2);
 
   } 
+  
+
+  char bxname[200];
+  char bxtitle[200];
+  
+  // CSC LCT Bunch crossing plots
+  
+  int ihist = 0;
+  for (int iEndcap = 0; iEndcap < 2; iEndcap++) {
+    for (int iStation = 1; iStation < 5; iStation++) {
+      for (int iRing = 1; iRing < 4; iRing++) {
+	
+	if (iStation != 1 && iRing > 2) continue;
+	
+	sprintf(bxname ,"csc_bx_%d_%d_%d", iEndcap, iStation, iRing);
+	sprintf(bxtitle,"CSC LCT BX, Endcap_%d:Station_%d:Ring_%d", iEndcap, iStation, iRing);
+
+	bx_csc[ihist] = dbe->book1D(bxname, bxtitle, 9, 0, 9);
+	
+	bx_csc[ihist] -> setAxisTitle("bx_{CSC track}",1);
+	
+	ihist++;
+      }
+    }
+  }
+  
+  
+  // ME1/1 Plots
+  lctStrip = dbe->book1D("CSC_LCT_Strip", "CSC_LCT_Strip", 164, 0, 164);
+  
+  lctWire  = dbe->book1D("CSC_LCT_Wire", "CSC_LCT_Wire", 80, 0, 80);
+  
+  lctLocalPhi = dbe->book1D("CSC_LCT_LocalPhi", "CSC_LCT_LocalPhi", 50, 0, 1000); 
+  
+  lctGblPhi = dbe->book1D("CSC_LCT_GblPhi", "CSC_LCT_GblPhi", 50, 0, 6.28);
+    
+  lctGblEta = dbe->book1D("CSC_LCT_GblEta", "CSC_LCT_GblEta", 50, 0.9, 2.4);
 
 }
 
@@ -636,7 +674,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
 	      //csctfoccupancies->Fill( gblEta.global_eta/127. * 1.5 + 0.9, (gblPhi.global_phi + ( sector + (endcap?0:6) )*4096 + station*4096*12) * 1./(4*4096*12) );
 	      
-	      //	      if (verbose_) {
+	      if (verbose_) {
 		cout << "\n ===== Current LCT Values ======";
 		cout << "\n Endcap    = " << endcap;
 		cout << "\n Station   = " << station;
@@ -655,12 +693,36 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 		cout << "\n Phi Gbl   = " << phiG;
 		cout << "\n Eta Gbl   = " << etaG;
 		cout << "\n Phi Loc   = " << lclPhi.phi_local;
-		// }
+	      }
 	      
 	      // Fill Event Lcts Plots
+	      lctStrip    -> Fill(strip);
+	      lctWire     -> Fill(keyWire);
+	      lctLocalPhi -> Fill(lclPhi.phi_local);
+	      lctGblPhi   -> Fill(phiG);
+	      lctGblEta   -> Fill(etaG);
 	      
-
-
+	      // Now BX plots. 18 total
+	      if (endcap == 0 && station == 1 && ring == 1) bx_csc[0] -> Fill(bx);
+	      if (endcap == 0 && station == 1 && ring == 2) bx_csc[1] -> Fill(bx);
+	      if (endcap == 0 && station == 1 && ring == 3) bx_csc[2] -> Fill(bx);
+	      if (endcap == 0 && station == 2 && ring == 1) bx_csc[3] -> Fill(bx);
+	      if (endcap == 0 && station == 2 && ring == 2) bx_csc[4] -> Fill(bx);
+	      if (endcap == 0 && station == 3 && ring == 1) bx_csc[5] -> Fill(bx);
+	      if (endcap == 0 && station == 3 && ring == 2) bx_csc[6] -> Fill(bx);
+	      if (endcap == 0 && station == 4 && ring == 1) bx_csc[7] -> Fill(bx);
+	      if (endcap == 0 && station == 5 && ring == 2) bx_csc[8] -> Fill(bx);
+	      
+	      if (endcap == 1 && station == 1 && ring == 1) bx_csc[9]  -> Fill(bx);
+	      if (endcap == 1 && station == 1 && ring == 2) bx_csc[10] -> Fill(bx);
+	      if (endcap == 1 && station == 1 && ring == 3) bx_csc[11] -> Fill(bx);
+	      if (endcap == 1 && station == 2 && ring == 1) bx_csc[12] -> Fill(bx);
+	      if (endcap == 1 && station == 2 && ring == 2) bx_csc[13] -> Fill(bx);
+	      if (endcap == 1 && station == 3 && ring == 1) bx_csc[14] -> Fill(bx);
+	      if (endcap == 1 && station == 3 && ring == 2) bx_csc[15] -> Fill(bx);
+	      if (endcap == 1 && station == 4 && ring == 1) bx_csc[16] -> Fill(bx);
+	      if (endcap == 1 && station == 4 && ring == 2) bx_csc[17] -> Fill(bx);
+	      
 
             } // lct != range1.scond
         } // csc!=corrlcts.product()->end()

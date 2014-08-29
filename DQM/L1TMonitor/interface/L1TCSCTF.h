@@ -105,26 +105,7 @@ class L1TCSCTF : public edm::EDAnalyzer {
   // ===== NEW: CSC EVENT LCT PLOTS =====
   
   // First a bunch crossing plot for each station, ring, and endcap combination. 18 total.
-  // Hists are defined as bx_Endcap_Station_Ring
-  MonitorElement* bx_0_1_1; 
-  MonitorElement* bx_0_1_2;
-  MonitorElement* bx_0_1_3;
-  MonitorElement* bx_0_2_1;
-  MonitorElement* bx_0_2_2;
-  MonitorElement* bx_0_3_1;
-  MonitorElement* bx_0_3_2;
-  MonitorElement* bx_0_4_1;
-  MonitorElement* bx_0_4_2;
-  
-  MonitorElement* bx_1_1_1;
-  MonitorElement* bx_1_1_2;
-  MonitorElement* bx_1_1_3;
-  MonitorElement* bx_1_2_1;
-  MonitorElement* bx_1_2_2;
-  MonitorElement* bx_1_3_1;
-  MonitorElement* bx_1_3_2;
-  MonitorElement* bx_1_4_1;
-  MonitorElement* bx_1_4_2;
+  MonitorElement* bx_csc[18];
 
   // PLOTS SPECIFICALLY FOR ME1/1
   MonitorElement* lctStrip;
@@ -132,7 +113,7 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* lctLocalPhi;
   MonitorElement* lctGblPhi;
   MonitorElement* lctGblEta;
-
+  
 
 
 
