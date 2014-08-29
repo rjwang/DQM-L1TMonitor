@@ -415,37 +415,53 @@ void L1TCSCTF::beginJob(void)
   char bxtitle[200];
   
   // CSC LCT Bunch crossing plots
-  
   int ihist = 0;
   for (int iEndcap = 0; iEndcap < 2; iEndcap++) {
     for (int iStation = 1; iStation < 5; iStation++) {
       for (int iRing = 1; iRing < 4; iRing++) {
-	
 	if (iStation != 1 && iRing > 2) continue;
-	
-	sprintf(bxname ,"csc_bx_%d_%d_%d", iEndcap, iStation, iRing);
-	sprintf(bxtitle,"CSC LCT BX, Endcap_%d:Station_%d:Ring_%d", iEndcap, iStation, iRing);
+	TString signEndcap="+";
+	if(iEndcap==0) signEndcap="-";
+	sprintf(bxname ,"bx_csc_%d_%d_%d", iEndcap, iStation, iRing);
+	sprintf(bxtitle,"CSC LCT BX, ME%s%d/%d", signEndcap.Data(), iStation, iRing);
 
-	bx_csc[ihist] = dbe->book1D(bxname, bxtitle, 9, 0, 9);
-	
-	bx_csc[ihist] -> setAxisTitle("bx_{CSC track}",1);
-	
+	bx_csc[ihist] = dbe->book1D(bxname, bxtitle, 12, 1, 13);
+	bx_csc[ihist] -> setAxisTitle(bxtitle,1);
+
+    	bx_csc[ihist]->setBinLabel(1,"1",1);
+    	bx_csc[ihist]->setBinLabel(2,"2",1);
+    	bx_csc[ihist]->setBinLabel(3,"3",1);
+    	bx_csc[ihist]->setBinLabel(4,"4",1);
+    	bx_csc[ihist]->setBinLabel(5,"5",1);
+    	bx_csc[ihist]->setBinLabel(6,"6",1);
+    	bx_csc[ihist]->setBinLabel(7,"7",1);
+    	bx_csc[ihist]->setBinLabel(8,"8",1);
+    	bx_csc[ihist]->setBinLabel(9,"9",1);
+    	bx_csc[ihist]->setBinLabel(10,"10",1);
+    	bx_csc[ihist]->setBinLabel(11,"11",1);
+	bx_csc[ihist]->setBinLabel(12,"12",1);
+
 	ihist++;
       }
     }
   }
   
   
-  // ME1/1 Plots
+  // plots for ME1/1 chambers 
   lctStrip = dbe->book1D("CSC_LCT_Strip", "CSC_LCT_Strip", 164, 0, 164);
+  lctStrip->setAxisTitle("Strip number", 1);
   
   lctWire  = dbe->book1D("CSC_LCT_Wire", "CSC_LCT_Wire", 80, 0, 80);
+  lctWire->setAxisTitle("Anode Wiregroup", 1);
   
   lctLocalPhi = dbe->book1D("CSC_LCT_LocalPhi", "CSC_LCT_LocalPhi", 50, 0, 1000); 
+  lctLocalPhi ->setAxisTitle("Local LCT #phi", 1);
   
-  lctGblPhi = dbe->book1D("CSC_LCT_GblPhi", "CSC_LCT_GblPhi", 50, 0, 6.28);
+  lctGblPhi = dbe->book1D("CSC_LCT_GblPhi", "CSC_LCT_GblPhi", 50, 0, 2*M_PI);
+  lctGblPhi ->setAxisTitle("Global LCT #phi", 1);
     
   lctGblEta = dbe->book1D("CSC_LCT_GblEta", "CSC_LCT_GblEta", 50, 0.9, 2.4);
+  lctGblEta ->setAxisTitle("Global LCT #eta", 1);
 
 }
 
@@ -696,13 +712,17 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	      }
 	      
 	      // Fill Event Lcts Plots
-	      lctStrip    -> Fill(strip);
-	      lctWire     -> Fill(keyWire);
-	      lctLocalPhi -> Fill(lclPhi.phi_local);
-	      lctGblPhi   -> Fill(phiG);
-	      lctGblEta   -> Fill(etaG);
+	      // only for ME1/1
+	      if(station == 1){
+	      	lctStrip    -> Fill(strip);
+	      	lctWire     -> Fill(keyWire);
+	      	lctLocalPhi -> Fill(lclPhi.phi_local);
+	      	lctGblPhi   -> Fill(phiG);
+	      	lctGblEta   -> Fill(etaG);
+	      }
 	      
 	      // Now BX plots. 18 total
+	      // minus side
 	      if (endcap == 0 && station == 1 && ring == 1) bx_csc[0] -> Fill(bx);
 	      if (endcap == 0 && station == 1 && ring == 2) bx_csc[1] -> Fill(bx);
 	      if (endcap == 0 && station == 1 && ring == 3) bx_csc[2] -> Fill(bx);
@@ -713,6 +733,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	      if (endcap == 0 && station == 4 && ring == 1) bx_csc[7] -> Fill(bx);
 	      if (endcap == 0 && station == 5 && ring == 2) bx_csc[8] -> Fill(bx);
 	      
+	      // plus side
 	      if (endcap == 1 && station == 1 && ring == 1) bx_csc[9]  -> Fill(bx);
 	      if (endcap == 1 && station == 1 && ring == 2) bx_csc[10] -> Fill(bx);
 	      if (endcap == 1 && station == 1 && ring == 3) bx_csc[11] -> Fill(bx);
